@@ -1,0 +1,17 @@
+# Virtual environment
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Database files (per project guidelines — don't push .db to GitHub)
+*.db
+
+# OS junk
+.DS_Store
+Thumbs.db
