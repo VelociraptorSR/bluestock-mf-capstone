@@ -193,7 +193,58 @@ def clean_scheme_performance():
     return df
 
 
+def clean_remaining_datasets():
+    """
+    Applies a lightweight, generic cleaning pass to the remaining 7 datasets
+    that don't have dataset-specific cleaning rules:
+    - fund_master, aum_by_fund_house, monthly_sip_inflows, category_inflows,
+      industry_folio_count, portfolio_holdings, benchmark_indices
+
+    For each: parse known date-like columns, remove exact duplicate rows,
+    and save to data/processed/.
+    """
+    print("Cleaning remaining datasets (generic pass)...")
+
+    # filename -> list of column names that should be parsed as dates, if present
+    remaining_files = {
+        "01_fund_master.csv": ["launch_date"],
+        "03_aum_by_fund_house.csv": ["date"],
+        "04_monthly_sip_inflows.csv": [],  # 'month' column is YYYY-MM, not a full date - handled separately if needed
+        "05_category_inflows.csv": [],
+        "06_industry_folio_count.csv": [],
+        "09_portfolio_holdings.csv": ["date"],
+        "10_benchmark_indices.csv": ["date"],
+    }
+
+    for filename, date_cols in remaining_files.items():
+        df = pd.read_csv(RAW_DIR / filename)
+        original_rows = len(df)
+
+        # Parse any known date columns
+        for col in date_cols:
+            if col in df.columns:
+                df[col] = pd.to_datetime(df[col], format="%Y-%m-%d", errors='coerce')
+                bad_dates = df[col].isnull().sum()
+                if bad_dates > 0:
+                    print(f"  !! {filename}: {bad_dates} unparseable values in '{col}'")
+
+        # Remove exact duplicate rows
+        duplicates_removed = df.duplicated().sum()
+        df = df.drop_duplicates()
+
+        # Save cleaned version with the same base filename, suffixed _clean
+        clean_name = filename.replace(".csv", "_clean.csv")
+        output_path = PROCESSED_DIR / clean_name
+        df.to_csv(output_path, index=False)
+
+        print(f"  {filename}: {original_rows} rows -> {len(df)} rows "
+              f"({duplicates_removed} duplicates removed) -> saved as {clean_name}")
+
+    print("Generic cleaning pass complete.\n")
+
+
 if __name__ == "__main__":
     clean_nav_history()
     clean_investor_transactions()
     clean_scheme_performance()
+    clean_remaining_datasets()
