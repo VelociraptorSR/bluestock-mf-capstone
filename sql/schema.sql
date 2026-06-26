@@ -112,11 +112,12 @@ CREATE TABLE IF NOT EXISTS fact_performance (
 -- AUM here is reported at the fund-house level, not per-scheme.
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS fact_aum (
-    fund_house     TEXT NOT NULL,
-    date           DATE NOT NULL,
-    date_id        INTEGER NOT NULL,
-    aum_crore      REAL NOT NULL,
-    num_schemes    INTEGER,
+    fund_house        TEXT NOT NULL,
+    date              DATE NOT NULL,
+    date_id           INTEGER NOT NULL,
+    aum_crore         REAL NOT NULL,
+    aum_lakh_crore    REAL,
+    num_schemes       INTEGER,
     PRIMARY KEY (fund_house, date),
     FOREIGN KEY (date_id) REFERENCES dim_date(date_id)
 );
