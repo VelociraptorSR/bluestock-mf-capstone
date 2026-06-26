@@ -121,3 +121,17 @@ CREATE TABLE IF NOT EXISTS fact_aum (
     PRIMARY KEY (fund_house, date),
     FOREIGN KEY (date_id) REFERENCES dim_date(date_id)
 );
+
+
+-- ------------------------------------------------------------
+-- FACT TABLE: fact_sip_industry
+-- One row per month - industry-wide SIP inflow statistics.
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS fact_sip_industry (
+    month                       TEXT PRIMARY KEY,  -- format YYYY-MM
+    sip_inflow_crore            REAL NOT NULL,
+    active_sip_accounts_crore   REAL,
+    new_sip_accounts_lakh       REAL,
+    sip_aum_lakh_crore          REAL,
+    yoy_growth_pct              REAL
+);
