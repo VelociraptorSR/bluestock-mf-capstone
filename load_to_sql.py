@@ -56,7 +56,7 @@ def create_schema(engine):
             if statement:
                 conn.execute(text(statement))
         conn.commit()
-    print("Schema created (6 tables).")
+    print("Schema created (7 tables).")
 
 
 def load_table(engine, df: pd.DataFrame, table_name: str, source_row_count: int):
@@ -72,6 +72,12 @@ def load_table(engine, df: pd.DataFrame, table_name: str, source_row_count: int)
 
 
 def main():
+    # Delete existing database before rebuilding - ensures clean run every time
+    if DB_PATH.exists():
+        DB_PATH.unlink()
+        print("Deleted existing database for clean rebuild.")
+
+    
     print("Connecting to SQLite database...")
     engine = create_engine(f"sqlite:///{DB_PATH}")
 
@@ -113,6 +119,10 @@ def main():
     aum = pd.read_csv(PROCESSED_DIR / "03_aum_by_fund_house_clean.csv")
     aum = add_date_id(aum, "date")
     load_table(engine, aum, "fact_aum", len(aum))
+    
+    print("\nLoading fact_sip_industry...")
+    sip_inflows = pd.read_csv(PROCESSED_DIR / "04_monthly_sip_inflows_clean.csv")
+    load_table(engine, sip_inflows, "fact_sip_industry", len(sip_inflows))
 
     print("\nAll tables loaded successfully.")
 
